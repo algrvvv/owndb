@@ -1,0 +1,17 @@
+aliases:
+  db: 
+    aliases: [db, run, r]
+    desc: start database
+    cmds:
+      - go run cmd/db/main.go
+
+  cli:
+    aliases: [c, repl]
+    desc: start repl database client
+    cmds:
+      - go run cmd/cli/main.go
+  t:
+    aliases: [test, tests]
+    desc: start tests
+    cmds:
+      - go test ./...

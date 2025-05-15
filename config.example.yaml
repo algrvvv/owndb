@@ -1,0 +1,5 @@
+snapshot_file: ~/.owndb/snapshot.db
+wal_file: ~/.owndb/logs/wal.log
+log_file: ~/.owndb/logs/info.log
+port: 123456
+dumper_interval: 10s

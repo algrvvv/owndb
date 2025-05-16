@@ -1,4 +1,17 @@
 aliases:
+  p: 
+    aliases: [push]
+    desc: start lint and git push
+    cmds:
+      - golangci-lint run
+      - git push origin main
+
+  l: 
+    aliases: [lint]
+    desc: start lint
+    cmds:
+      - golangci-lint run
+
   db: 
     aliases: [db, run, r]
     desc: start database

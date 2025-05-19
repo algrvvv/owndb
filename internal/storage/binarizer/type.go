@@ -9,6 +9,7 @@ const (
 	StrType   byte = 0x01
 	IntType   byte = 0x02
 	FloatType byte = 0x03
+	BoolType  byte = 0x04
 )
 
 type Binarizer struct {

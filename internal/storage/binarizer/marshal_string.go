@@ -22,7 +22,7 @@ func MarshalString(w *bytes.Buffer, value string) error {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
-	_, err = w.Write([]byte(value))
+	_, err = w.WriteString(value)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}

@@ -1,0 +1,12 @@
+aliases:
+  t: 
+    desc: start dsl tests
+    aliases: [test, tests]
+    cmds:
+      - go test .
+
+  r: 
+    desc: start dsl tests && rewrite hashes
+    aliases: [test, tests]
+    cmds:
+      - go test . -args rewrite

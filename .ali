@@ -23,6 +23,7 @@ aliases:
     desc: start repl database client
     cmds:
       - go run cmd/cli/main.go
+
   t:
     aliases: [test, tests]
     desc: start tests

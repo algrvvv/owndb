@@ -12,7 +12,7 @@ import (
 func MustInit(path string) zerolog.Logger {
 	buildInfo, _ := debug.ReadBuildInfo()
 
-	logFile, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	logFile, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600)
 	if err != nil {
 		panic("faile to open log file: " + err.Error())
 	}

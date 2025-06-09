@@ -46,6 +46,9 @@ func TestLexer(t *testing.T) {
 			command: "SET STRING foo = bar;",
 		},
 		{
+			command: "SET BOOL bar = false;",
+		},
+		{
 			command: "RM bar;",
 		},
 		{

@@ -10,3 +10,5 @@ aliases:
     aliases: [test, tests]
     cmds:
       - go test . -args rewrite
+      - echo "\n\ntests hash rewrited\nrestarting testing\n\n" && sleep 2
+      - go test . -v

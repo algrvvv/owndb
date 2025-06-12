@@ -15,10 +15,6 @@ func MarshalFloat(w *bytes.Buffer, value float64) error {
 	}
 
 	vlen := uint16(unsafe.Sizeof(value))
-
-	println("value: ", value)
-	println("size: ", vlen)
-
 	err := binary.Write(w, binary.LittleEndian, vlen)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)

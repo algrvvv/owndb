@@ -1,6 +1,12 @@
 package dsl
 
-type Token int
+type TokenType int
+
+type Token struct {
+	Type     TokenType
+	Position Position
+	Value    string
+}
 
 // nolint
 //
@@ -8,7 +14,7 @@ type Token int
 // а я ведь просто вдохнавился go/token
 const (
 	// special
-	EOF Token = iota
+	EOF TokenType = iota
 	ILLEGAL
 
 	// literals
@@ -23,6 +29,7 @@ const (
 	INT    // 123
 	FLOAT  // 123.123
 	STRING // "string"
+	BOOL   // bool
 	types_end
 
 	// operators
@@ -52,7 +59,14 @@ const (
 	THEN   // if key = value then
 	EXISTS // if EXISTS key then
 	SAVE   // save
+	KEYS   // show all availble keys
+	SHOW   // show all data
 	keywords_end
+
+	booltype_start
+	TRUE
+	FALSE
+	booltype_end
 )
 
 var tokens = [...]string{
@@ -63,6 +77,7 @@ var tokens = [...]string{
 	TYPE:    "TYPE",
 	INT:     "INT",
 	FLOAT:   "FLOAT",
+	BOOL:    "BOOL",
 	STRING:  "STRING",
 	SEMI:    ";",
 
@@ -88,52 +103,61 @@ var tokens = [...]string{
 	THEN:   "THEN",
 	EXISTS: "EXISTS",
 	SAVE:   "SAVE",
+	KEYS:   "KEYS",
+	SHOW:   "SHOW",
+
+	TRUE:  "TRUE",
+	FALSE: "FALSE",
 }
 
 var (
-	keywords map[string]Token
-	literals map[string]Token
-	types    map[string]Token
+	keywords map[string]TokenType
+	literals map[string]TokenType
+	types    map[string]TokenType
 )
 
 func init() {
-	keywords = make(map[string]Token, keywords_end-(keywords_start+1))
+	keywords = make(map[string]TokenType, keywords_end-(keywords_start+1))
 	for i := keywords_start + 1; i < keywords_end; i++ {
 		keywords[tokens[i]] = i
 	}
 
-	literals = make(map[string]Token, lit_end-(lit_start+1))
+	literals = make(map[string]TokenType, lit_end-(lit_start+1))
 	for i := lit_start + 1; i < lit_end; i++ {
 		literals[tokens[i]] = i
 	}
 
-	types = make(map[string]Token, types_end-(types_start+1))
+	types = make(map[string]TokenType, types_end-(types_start+1))
 	for i := types_start + 1; i < types_end; i++ {
 		types[tokens[i]] = i
 	}
 }
 
-func (t Token) IsType() bool {
-	return t > types_start && t < types_end
+func (t TokenType) IsType() bool { return t > types_start && t < types_end }
+
+func (t TokenType) IsLiteral() bool { return t > lit_start && t < lit_end }
+
+func (t TokenType) String() string { return tokens[t] }
+
+func (t TokenType) IsKeyword() bool { return t > keywords_start && t < keywords_end }
+
+func (t TokenType) IsOperator() bool { return t > operators_start && t < operators_end }
+
+func IsBool(lit string) bool {
+	return lit == tokens[TRUE] || lit == tokens[FALSE]
 }
 
-func (t Token) IsLiteral() bool {
-	return t > types_start && t < types_end
+func LookupTokTyp(lit string) TokenType {
+	for k, v := range tokens {
+		if v == lit {
+			return TokenType(k)
+		}
+	}
+
+	return -1
 }
 
-func (t Token) String() string {
-	return tokens[t]
-}
-
-func (t Token) IsKeyword() bool {
-	return t > keywords_start && t < keywords_end
-}
-
-func (t Token) IsOperator() bool {
-	return t > keywords_start && t < keywords_end
-}
-
-func Lookup(lit string) Token {
+func Lookup(lit string) TokenType {
 	if _, isKeyword := keywords[lit]; isKeyword {
 		return KEYWORD
 	}

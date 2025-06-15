@@ -61,6 +61,7 @@ const (
 	SAVE   // save
 	KEYS   // show all availble keys
 	SHOW   // show all data
+	EXP    // explain query (debug mode)
 	keywords_end
 
 	booltype_start
@@ -105,6 +106,7 @@ var tokens = [...]string{
 	SAVE:   "SAVE",
 	KEYS:   "KEYS",
 	SHOW:   "SHOW",
+	EXP:    "EXP",
 
 	TRUE:  "TRUE",
 	FALSE: "FALSE",

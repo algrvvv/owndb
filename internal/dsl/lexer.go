@@ -27,7 +27,7 @@ func NewLexer(reader io.Reader) *Lexer {
 
 // Lex scans the input for the next token.
 // it returns position, token and lit.
-func (l *Lexer) Lex() (Position, Token, string) {
+func (l *Lexer) Lex() (Position, TokenType, string) {
 	for {
 		r, _, err := l.reader.ReadRune()
 		if err != nil {
@@ -63,6 +63,14 @@ func (l *Lexer) Lex() (Position, Token, string) {
 			return l.pos, LSS, "<"
 		case '>':
 			return l.pos, GTR, ">"
+		case '\'':
+			// мы можем получить длинную строку, которая должна быть
+			// заключена в одинарные кавычки.
+			// поэтому, если мы получаем одинарные кавычки, то пытаемся
+			// распарчить длинную строку
+			startPos := l.pos
+			lit := l.lexQuotStr()
+			return startPos, STRING, lit
 		default:
 			if unicode.IsSpace(r) {
 				// if it is space just continue
@@ -70,15 +78,19 @@ func (l *Lexer) Lex() (Position, Token, string) {
 			} else if unicode.IsDigit(r) {
 				startPos := l.pos
 				l.backup()
-				lit, tok := l.lexNum()
-				return startPos, tok, lit
+				lit, typ := l.lexNum()
+				return startPos, typ, lit
 			} else if unicode.IsLetter(r) {
 				startPos := l.pos
 				l.backup()
 				lit := l.lexStr()
+				typ := Lookup(lit)
 
-				tok := Lookup(lit)
-				return startPos, tok, lit
+				if IsBool(lit) {
+					return startPos, BOOL, lit
+				}
+
+				return startPos, typ, lit
 			}
 		}
 	}
@@ -98,8 +110,8 @@ func (l *Lexer) backup() {
 	l.pos.Column--
 }
 
-func (l *Lexer) lexNum() (string, Token) {
-	var tok Token = INT
+func (l *Lexer) lexNum() (string, TokenType) {
+	var tok TokenType = INT
 	var lit []rune
 
 	for {
@@ -173,4 +185,33 @@ func (l *Lexer) lexStr() string {
 			return string(lit)
 		}
 	}
+}
+
+func (l *Lexer) lexQuotStr() string {
+	var lit []rune
+
+	for {
+		r, _, err := l.reader.ReadRune()
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				break
+			}
+
+			panic(err)
+		}
+
+		l.pos.Column++
+		// проверяем на закрытие длинной строки
+		if r == '\'' {
+			// если это закрывающая кавычка, то просто возвращаем
+			// собранную строку
+			break
+		}
+
+		// в другом случае мы ничего не делаем, так как все,
+		// что внутри кавычек должно быть одной строкой
+		lit = append(lit, r)
+	}
+
+	return string(lit)
 }

@@ -11,7 +11,7 @@ var (
 	envConfigPathVarName = "OWN_CONFIG"
 )
 
-func Path() string {
+func configPath() string {
 	flag.StringVar(&path, "config", "", "config path")
 	flag.Parse()
 

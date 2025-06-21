@@ -46,8 +46,6 @@ func (m *MemStorage) Set(key string, data any) (err error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	// TODO: делать запись в owl logs.
-	println("!!!TODO: SAVE IN OWL LOGS!!!")
 	m.data[key] = data
 	return nil
 }

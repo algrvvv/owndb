@@ -8,7 +8,7 @@ import (
 )
 
 func TestMarshalNUnmarshal(t *testing.T) {
-	log := logger.MustInit("owndb.log")
+	log := logger.MustInit("owndb.log", true)
 	// log = zerolog.New(io.Discard)
 
 	m := map[string]any{

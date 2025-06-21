@@ -16,8 +16,8 @@ type Interpreter struct {
 	debugMode bool
 }
 
-func NewInterpreter(snap snapshot.Snapshotter, storage storage.Storage) Interpreter {
-	return Interpreter{
+func NewInterpreter(snap snapshot.Snapshotter, storage storage.Storage) *Interpreter {
+	return &Interpreter{
 		storage: storage,
 		snap:    snap,
 	}
@@ -56,16 +56,12 @@ func (i *Interpreter) ExecStatement(stmt Statement, debug bool) (any, error) {
 		data := i.storage.GetAll()
 
 		for k, v := range data {
-			if count == 0 {
-				builder.WriteRune('\n')
-			}
-
 			if count == s.Limit {
 				break
 			}
 
 			count++
-			builder.WriteString(fmt.Sprintf("%q = %v\n", k, v))
+			builder.WriteString(fmt.Sprintf("%q = %v; ", k, v))
 		}
 
 		return builder.String(), nil
@@ -74,15 +70,11 @@ func (i *Interpreter) ExecStatement(stmt Statement, debug bool) (any, error) {
 		keys := i.storage.Keys()
 
 		for i, k := range keys {
-			if i == 0 {
-				builder.WriteRune('\n')
-			}
-
 			if i == s.Limit {
 				break
 			}
 
-			builder.WriteString(fmt.Sprintf("%q\n", k))
+			builder.WriteString(fmt.Sprintf("%q; ", k))
 		}
 
 		return builder.String(), nil

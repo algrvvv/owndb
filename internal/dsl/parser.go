@@ -43,7 +43,7 @@ func (p *Parser) Parse() (Statement, error) {
 		return p.Parse()
 	}
 
-	return nil, nil
+	return nil, fmt.Errorf("invalid keyword statement")
 }
 
 func (p *Parser) parseExpression(tok Token) (Expression, error) {

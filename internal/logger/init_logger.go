@@ -9,7 +9,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
-func MustInit(path string) zerolog.Logger {
+func MustInit(path string, debugMode bool) zerolog.Logger {
 	buildInfo, _ := debug.ReadBuildInfo()
 
 	logFile, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600)
@@ -20,8 +20,13 @@ func MustInit(path string) zerolog.Logger {
 	consoleWriter := zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339}
 	multiWriter := io.MultiWriter(consoleWriter, logFile)
 
+	var lvl zerolog.Level = zerolog.InfoLevel
+	if debugMode {
+		lvl = zerolog.TraceLevel
+	}
+
 	return zerolog.New(multiWriter).
-		Level(zerolog.TraceLevel).
+		Level(lvl).
 		With().
 		Timestamp().
 		Caller().

@@ -1,0 +1,6 @@
+debug: true
+snapshot_file: ./snap.bin
+wal_file: ./wal.log
+log_file: ./owndb.log
+port: 12345
+dumper_interval: 10s

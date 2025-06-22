@@ -1,2 +1,5 @@
 *.log
 .alienv
+*.bin
+config.yml
+config.yaml

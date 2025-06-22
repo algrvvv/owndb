@@ -6,16 +6,19 @@ import (
 	"io"
 	"strings"
 
-	"github.com/algrvvv/owndb/internal/dsl"
+	"github.com/algrvvv/owndb/internal/exec"
+	"github.com/rs/zerolog"
 )
 
 type REPL struct {
-	intr *dsl.Interpreter
+	executor exec.Executor
+	log      zerolog.Logger
 }
 
-func NewREPLInstance(intr *dsl.Interpreter) *REPL {
+func NewREPLInstance(executor exec.Executor, log zerolog.Logger) *REPL {
 	return &REPL{
-		intr: intr,
+		executor: executor,
+		log:      log,
 	}
 }
 
@@ -24,6 +27,8 @@ func (r *REPL) Scan(reader io.Reader) error {
 	print("> ")
 	for scanner.Scan() {
 		line := scanner.Text()
+		r.log.Debug().Str("line", line).Msg("got new line from user")
+
 		if strings.TrimSpace(line) == "" {
 			print("> ")
 			continue
@@ -31,7 +36,7 @@ func (r *REPL) Scan(reader io.Reader) error {
 			return fmt.Errorf("exit by user")
 		}
 
-		data, err := r.ExecQuery(line)
+		data, err := r.executor.Execute(line)
 		if err != nil {
 			fmt.Println("FAIL! ", err.Error())
 			print("\n> ")
@@ -39,6 +44,7 @@ func (r *REPL) Scan(reader io.Reader) error {
 		}
 
 		if data != nil {
+			r.log.Debug().Any("data", data).Msg("got data from executor")
 			fmt.Println(data)
 		}
 
@@ -50,39 +56,4 @@ func (r *REPL) Scan(reader io.Reader) error {
 	}
 
 	return nil
-}
-
-func (r *REPL) ExecQuery(query string) (res any, err error) {
-	defer func() {
-		if rec := recover(); rec != nil {
-			err = fmt.Errorf("%v", rec)
-		}
-	}()
-
-	var tokens []dsl.Token
-	lexer := dsl.NewLexer(strings.NewReader(query))
-
-	for {
-		pos, tok, lit := lexer.Lex()
-		if tok == dsl.EOF {
-			break
-		}
-
-		tokens = append(tokens, dsl.Token{Type: tok, Position: pos, Value: lit})
-	}
-
-	parser := dsl.NewParser(tokens)
-	stmt, err := parser.Parse()
-	if err != nil {
-		return
-	}
-
-	if parser.DebugMode {
-		for _, tok := range tokens {
-			fmt.Printf("%d:%d\t%s\t%s\n", tok.Position.Line, tok.Position.Column, tok.Type, tok.Value)
-		}
-	}
-
-	res, err = r.intr.ExecStatement(stmt, parser.DebugMode)
-	return
 }

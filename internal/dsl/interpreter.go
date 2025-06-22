@@ -8,18 +8,21 @@ import (
 
 	"github.com/algrvvv/owndb/internal/storage"
 	"github.com/algrvvv/owndb/internal/storage/snapshot"
+	"github.com/algrvvv/owndb/internal/wal"
 )
 
 type Interpreter struct {
 	snap      snapshot.Snapshotter
+	wal       *wal.WAL
 	storage   storage.Storage
 	debugMode bool
 }
 
-func NewInterpreter(snap snapshot.Snapshotter, storage storage.Storage) *Interpreter {
+func NewInterpreter(snap snapshot.Snapshotter, storage storage.Storage, wal *wal.WAL) *Interpreter {
 	return &Interpreter{
 		storage: storage,
 		snap:    snap,
+		wal:     wal,
 	}
 }
 
@@ -88,7 +91,15 @@ func (i *Interpreter) ExecStatement(stmt Statement, debug bool) (any, error) {
 		return i.okTime(start), nil
 	case *SaveStatement:
 		m := i.storage.GetAll()
+
+		// записываем снепшот и чистим wal
 		_, err := i.snap.Write(m)
+		if err != nil {
+			return nil, err
+		}
+
+		// чистим wal и выходим
+		err = i.wal.Clear()
 		if err != nil {
 			return nil, err
 		}

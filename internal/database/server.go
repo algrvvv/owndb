@@ -58,6 +58,7 @@ func (d *DBServer) handleConn(conn net.Conn) {
 
 		res, err := d.inline.Execute(line)
 		if err != nil {
+			d.log.Err(err).Str("query", line).Msgf("failed to execute query")
 			fmt.Fprintf(conn, "%s\n", err)
 			continue
 		}

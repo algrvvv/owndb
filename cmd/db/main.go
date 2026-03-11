@@ -44,7 +44,7 @@ func main() {
 		panic(err)
 	}
 
-	walFile, err := os.OpenFile(conf.WalFile, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0600)
+	walFile, err := os.OpenFile(conf.WalFile, os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {
 		panic(err)
 	}
